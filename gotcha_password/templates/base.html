@@ -1,0 +1,28 @@
+{% load staticfiles %}
+<html>
+<head>
+    <title>A Study on Image-Based Password Schemes</title>
+    <meta charset="UTF-8">
+    <meta property="og:title" content="A Study on Image-Based Password Schemes">
+    <meta property="og:description" content="Brandon Chinn's Inquiry 4 assignment for UGIS 188">
+    <!--
+    <meta property="og:image" content="{% static 'img/fb-logo.jpg' %}">
+    <meta property="og:url" content="http://muchmeme-verysurvey.herokuapp.com">
+    -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <h1>A Study on Image-Based Password Schemes</h1>
+        <p>UGIS 188: Brandon Chinn</p>
+    </header>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    <footer>
+        <p>Study based on research done by <a href="http://dl.acm.org/citation.cfm?id=2517319">J. Blocki et al (2013)</a>. Favicon by <a href="https://www.iconfinder.com/designmodo">Designmodo</a>, licensed under CC BY 3.0.</p>
+    </footer>
+</body>
+</html>

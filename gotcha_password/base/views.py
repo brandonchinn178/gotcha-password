@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from django.views.generic import TemplateView
 
-# Create your views here.
+class HomeView(TemplateView):
+    """
+    Shows a page that lets users decide if they want to create a new account
+    or attempt to log in.
+    """
+    template_name = 'home.html'
