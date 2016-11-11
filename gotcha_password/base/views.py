@@ -23,7 +23,7 @@ class CreateAccountView(FormView):
 
     def form_valid(self, form):
         """
-        Save values in session and redirect to SetupImagesView
+        Save values in session and redirect to CreateImagesView
         """
         self.request.session['credentials'] = {
             'username': form.cleaned_data['username'],
@@ -31,16 +31,16 @@ class CreateAccountView(FormView):
             'seed': get_random_seed(),
             'num_images': randint(3, 7),
         }
-        return redirect('setup-images')
+        return redirect('create-images')
 
-class SetupImagesView(TemplateView):
+class CreateImagesView(TemplateView):
     """
     Shows a page with the images for the user to label
     """
-    template_name = 'setup_images.html'
+    template_name = 'create_images.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SetupImagesView, self).get_context_data(**kwargs)
+        context = super(CreateImagesView, self).get_context_data(**kwargs)
 
         credentials = self.request.session['credentials']
         image_seed = extract(credentials['raw_password'], credentials['seed'])
