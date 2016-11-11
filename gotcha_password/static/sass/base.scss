@@ -67,6 +67,7 @@ footer {
     color: $black;
     width: 900px;
     margin: 0 auto;
+    border: 2px ridge $off-white;
     a {
         color: $blue;
         &:hover {
