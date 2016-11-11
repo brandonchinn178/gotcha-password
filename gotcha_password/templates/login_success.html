@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Authentication results for: {{ user.username }}</h1>
+    {% if right_password %}
+        <p>You correctly matched {{ correct_images }} out of {{ num_images }} labels to their corresponding picture, which is an accuracy of {{ percentage }}%. Feel free to try again tomorrow and see if you can do better!</p>
+    {% else %}
+        <p>Unfortunately, you did not provide the correct password. The images should have looked different than when you first created your account. At this point, you would probably be asked to log in again, if this were an actual authentication website. Feel free to try again later and see if you can get the right password next time!</p>
+    {% endif %}
+    <p>Thanks for participating in this study!</p>
+    <p><a href="{% url 'home' %}">Back to home</a></p>
+{% endblock %}

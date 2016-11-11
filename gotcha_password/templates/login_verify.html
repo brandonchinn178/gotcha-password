@@ -2,13 +2,13 @@
 {% load staticfiles %}
 
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/create_images.css' %}">
-    <script src="{% static 'js/create_images.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login_verify.css' %}">
+    <script src="{% static 'js/login_verify.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-    <h1>Create an account</h1>
-    <p class="explanation">For each image below, provide a descriptive label that represents that image. The label should be something you'd recognize later for the same image.</p>
+    <h1>Login</h1>
+    <p>Select the label you wrote for each image. If you don't recognize any of the images, it might be because you provided the wrong password.</p>
     <form method="post">
         {% csrf_token %}
         {% for image in images %}
@@ -28,7 +28,14 @@
                         />
                     {% endfor %}
                 </svg>
-                <input name="label-{{ forloop.counter0 }}">
+                <div class="labels">
+                    {% with i=forloop.counter0 %}
+                        {% for label in labels %}
+                            <input type="radio" name="label-{{ i }}" value="{{ label.number }}">
+                            <div class="label"><label>{{ label.text }}</label></div>
+                        {% endfor %}
+                    {% endwith %}
+                </div>
             </div>
         {% endfor %}
         <div class="buttons">

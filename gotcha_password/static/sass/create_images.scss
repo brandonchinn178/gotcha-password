@@ -2,6 +2,9 @@
 
 .content {
     text-align: center;
+    p.explanation {
+        text-align: left;
+    }
     .image {
         display: inline-block;
         margin: 20px;
@@ -9,14 +12,6 @@
         svg {
             display: block;
             margin: 10px auto;
-        }
-    }
-    button.cancel {
-        background: $red;
-        border-color: $red;
-        &:hover {
-            color: $red;
-            background: $white;
         }
     }
     .error {

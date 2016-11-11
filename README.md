@@ -12,6 +12,11 @@ Installation
 1. Run `python gotcha_password/manage.py runserver`
 1. Go to `http://localhost:8000`
 
+Testing
+-------
+
+To run the unit tests, `cd` into the first `gotcha_password` directory and run `python manage.py test`.
+
 Security
 --------
 

@@ -46,6 +46,9 @@ input {
     vertical-align: middle;
     padding: 2px 5px 0;
     width: 250px;
+    &[type=radio], &[type=checkbox] {
+        width: initial;
+    }
 }
 
 button {
@@ -105,6 +108,7 @@ footer {
         }
     }
     form {
+        text-align: center;
         .field {
             margin-bottom: 10px;
         }
@@ -113,5 +117,17 @@ footer {
             font-style: italic;
             font-size: 0.9em;
         }
+        button.cancel {
+            background: $red;
+            border-color: $red;
+            &:hover {
+                color: $red;
+                background: $white;
+            }
+        }
+    }
+    .errors {
+        margin: 10px 0;
+        color: $red;
     }
 }

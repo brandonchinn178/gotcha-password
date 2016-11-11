@@ -15,11 +15,21 @@ def get_random_seed():
     """
     return get_random_string()
 
+def make_password(raw_password, labels):
+    salt = get_random_seed()
+    permutation = range(len(labels))
+    random.SystemRandom().shuffle(permutation)
+
+    password = hash_password(raw_password, salt, permutation)
+    return password, permutation
+
 def hash_password(raw_password, salt, permutation, iterations=HASH_ITERATIONS):
     """
     Hash data of the form "<raw_password>$<comma sep permutations>"
     """
-    password = '%s$%s' % (raw_password, ','.join(map(str, permutation)))
+    permutation = ','.join(map(str, permutation))
+
+    password = '%s$%s' % (raw_password, permutation)
     hashed = pbkdf2(password, salt, iterations)
     hashed = base64.b64encode(hashed).decode('ascii').strip()
     return '%s$%s' % (salt, hashed)
@@ -84,3 +94,15 @@ def random_ellipses(image, n, width, height):
             data2['rotation'] = -data1['rotation']
 
         image.extend([data1, data2])
+
+def extract_labels(data):
+    """
+    Extract labels from the data mapping keys of the form "label-<num>" to any
+    arbitrary value. Orders the resulting list on <num> and returns just the values.
+    """
+    labels = [
+        (int(name[6:]), val)
+        for name, val in data.items()
+        if name.startswith('label-')
+    ]
+    return [val for _, val in sorted(labels, key=lambda (i, _): i)]

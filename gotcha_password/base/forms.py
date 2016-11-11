@@ -2,13 +2,18 @@ from django import forms
 
 from base.models import User
 
+class PasswordField(forms.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['widget'] = forms.PasswordInput
+        super(PasswordField, self).__init__(*args, **kwargs)
+
 class CreateAccountForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username']
 
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Verify password', widget=forms.PasswordInput)
+    password1 = PasswordField(label='Password')
+    password2 = PasswordField(label='Verify password')
 
     def clean(self):
         cleaned_data = super(CreateAccountForm, self).clean()
@@ -17,3 +22,13 @@ class CreateAccountForm(forms.ModelForm):
             raise forms.ValidationError('Passwords do not match.')
 
         return cleaned_data
+
+class AuthenticationForm(forms.Form):
+    username = forms.CharField()
+    password = PasswordField()
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if not User.objects.filter(username=username).exists():
+            raise forms.ValidationError('There is no user with that username.')
+        return username

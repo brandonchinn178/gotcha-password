@@ -8,26 +8,24 @@ from random import SystemRandom
 from os import urandom
 from datetime import time
 
-from base.utils import get_random_seed, hash_password, list_permutations
+from base.utils import *
 
 class UserManager(models.Manager):
     def create(self, username, raw_password, seed, num_images, labels):
-        salt = get_random_seed()
-        permutation = [num for num, _ in labels]
-        SystemRandom().shuffle(permutation)
-
-        password = hash_password(raw_password, salt, permutation)
+        password, permutation = make_password(raw_password, labels)
 
         user = super(UserManager, self).create(
             username=username,
             password=password,
             seed=seed,
             num_images=num_images,
-            permutation=permutation,
+            permutation=','.join(map(str, permutation)),
         )
 
-        for num, text in labels:
-            Label.objects.create(user=user, number=num, text=text)
+        # renumber labels so that choosing the same order of labels later
+        # will return the correct permutation
+        for i, num in enumerate(permutation):
+            Label.objects.create(user=user, number=num, text=labels[i])
 
         return user
 
@@ -60,22 +58,27 @@ class User(models.Model):
     def __unicode__(self):
         return self.username
 
-    def check_password(self, raw_password, labels):
+    def set_password(self, raw_password, labels):
+        password, permutation = make_password(raw_password, labels)
+
+        self.password = password
+        self.permutation = ','.join(map(str, permutation))
+
+        for i, num in enumerate(permutation):
+            self.labels.filter(number=num).update(text=labels[i])
+
+    def check_password(self, raw_password, permutation):
         """
         Returns True if the given password and the ordered list of labels match the
         stored password hash.
-
-        NOTE: will not be used in this implementation. Left here as a proof of concept.
         """
         salt, password = self.password.split('$')
-        permutation = [l.number for l in labels]
 
-        for p in list_permutations(permutation, self.num_images):
-            hashed = hash_password(raw_password, salt, p)
-            if constant_time_compare(hashed, password):
-                return True
-
-        return False
+        # in a true implementation, this would list all of the possibilities that are
+        # wrong within a certain threshold. instead of allowing wrong images, this
+        # will check for exact correctness
+        hashed = hash_password(raw_password, salt, permutation)
+        return constant_time_compare(hashed, password)
 
 class Label(models.Model):
     """
@@ -85,17 +88,17 @@ class Label(models.Model):
     class Meta:
         ordering = ['user', 'number']
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='labels')
     # range [0, user.num_images) representing the order of this label in the list of labels for the user
     number = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=255)
 
     def __unicode__(self):
-        return '%s #%d (%s)' % (
-            self.user.username,
-            self.number,
-            self.text[:10]
-        )
+        text = self.text
+        if len(text) > 13:
+            text = '%s...' % text[:10]
+
+        return '%s #%d (%s)' % (self.user.username, self.number, text)
 
 class LoginAttempt(models.Model):
     """
@@ -108,6 +111,14 @@ class LoginAttempt(models.Model):
     correct_images = models.PositiveSmallIntegerField()
     raw_password = models.CharField(max_length=128) # not actually raw password, hashed once
     permutation = models.CharField(max_length=50)
+
+    def __unicode__(self):
+        if self.right_password:
+            percentage = float(self.correct_images) / self.user.num_images * 100
+            text = '%0.1f%' % percentage
+        else:
+            text = 'invalid'
+        return '%s (%s)' % (self.user.username, text)
 
     def timed_check_password(self, threshold, iterations):
         """

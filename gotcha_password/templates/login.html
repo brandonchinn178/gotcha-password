@@ -2,11 +2,11 @@
 {% load staticfiles %}
 
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/create_account.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
 {% endblock %}
 
 {% block content %}
-    <h1>Create an account</h1>
+    <h1>Login</h1>
     {% if form.errors %}
         <ul class="errors">
             {% for error in form.errors.values %}
@@ -20,9 +20,6 @@
             <div class="field {{ field.html_name }}">
                 {{ field.label_tag }}
                 {{ field }}
-                {% if field.help_text %}
-                    <p class="help-text">{{ field.help_text }}</p>
-                {% endif %}
             </div>
         {% endfor %}
         <div class="buttons">

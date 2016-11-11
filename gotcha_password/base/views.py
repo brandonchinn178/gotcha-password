@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 
 from random import randint
 
-from base.forms import CreateAccountForm
+from base.forms import *
 from base.models import *
 from base.utils import *
 
@@ -57,11 +57,7 @@ class CreateImagesView(TemplateView):
         been validated on the client side.
         """
         credentials = self.request.session['credentials']
-        labels = [
-            (int(name[6:]), text)
-            for name, text in request.POST.items()
-            if name.startswith('label-')
-        ]
+        labels = extract_labels(request.POST)
 
         User.objects.create(labels=labels, **credentials)
 
@@ -72,3 +68,88 @@ class CreateSuccessView(TemplateView):
     Shows a page informing the user that their account was successfully created.
     """
     template_name = 'create_success.html'
+
+class LoginView(FormView):
+    """
+    Shows a page that lets the user log in with a given username and password.
+    """
+    template_name = 'login.html'
+    form_class = AuthenticationForm
+
+    def form_valid(self, form):
+        self.request.session['credentials'] = form.cleaned_data
+        return redirect('login-verify')
+
+class LoginVerifyView(TemplateView):
+    """
+    Shows a page that displays the images and labels to the user
+    """
+    template_name = 'login_verify.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LoginVerifyView, self).get_context_data(**kwargs)
+
+        credentials = self.request.session['credentials']
+        user = User.objects.get(username=credentials['username'])
+        image_seed = extract(credentials['password'], user.seed)
+        context['images'] = generate_images(user.num_images, image_seed)
+        context['labels'] = Label.objects.filter(user=user)
+
+        context['svg_width'] = SVG_WIDTH
+        context['svg_height'] = SVG_HEIGHT
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Accepts the list of labels with the names "label-<image_num>". Each name is mapped
+        to the value of the label, which should match the user's permutation
+        """
+        credentials = self.request.session['credentials']
+        user = User.objects.get(username=credentials['username'])
+        salt = user.password.split('$')[0]
+        labels = map(int, extract_labels(request.POST))
+
+        # typically, here is where authentication would happen. instead of authenticating,
+        # show a page with user results and save in a LoginAttempt
+        right_password = user.check_password(credentials['password'], labels)
+
+        permutation = map(int, user.permutation.split(','))
+        correct_images = sum([
+            1 if val == permutation[i] else 0
+            for i, val in enumerate(labels)
+        ])
+        raw_password = hash_password(credentials['password'], salt, labels, iterations=1)
+        LoginAttempt.objects.create(
+            user=user,
+            right_password=right_password,
+            correct_images=correct_images,
+            raw_password=raw_password,
+            permutation=','.join(map(str, labels)),
+        )
+
+        self.request.session['right_password'] = right_password
+        self.request.session['correct_images'] = correct_images
+
+        return redirect('login-success')
+
+class LoginSuccessView(TemplateView):
+    """
+    Shows a success page that shows the user how many labels they correctly matched
+    """
+    template_name = 'login_success.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LoginSuccessView, self).get_context_data(**kwargs)
+
+        credentials = self.request.session['credentials']
+        user = User.objects.get(username=credentials['username'])
+        correct_images = self.request.session['correct_images']
+
+        context['user'] = user
+        context['right_password'] = self.request.session['right_password']
+        context['correct_images'] = correct_images
+        context['num_images'] = user.num_images
+        context['percentage'] = '%0.1f' % (float(correct_images) / user.num_images * 100)
+
+        return context

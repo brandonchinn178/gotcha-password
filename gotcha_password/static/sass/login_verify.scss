@@ -1,0 +1,58 @@
+@import "vars";
+
+.content {
+    text-align: center;
+    p.explanation {
+        text-align: left;
+    }
+    .image {
+        margin: 20px;
+        .labels {
+            vertical-align: top;
+            display: inline-block;
+            width: calc(100% - 305px);
+            padding: 10px 30px;
+            text-align: left;
+            input {
+                display: none;
+                &:checked + .label {
+                    color: $true-white;
+                    &:before {
+                        width: 100%;
+                        background: $blue;
+                    }
+                }
+            }
+            .label {
+                padding: 7px 10px 5px;
+                cursor: pointer;
+                &:last-child {
+                    margin-bottom: 0;
+                }
+                label {
+                    margin: 0;
+                    width: initial;
+                    line-height: 1em;
+                    cursor: pointer;
+                }
+                &:before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 0;
+                    height: 100%;
+                    background: $true-white;
+                    transition: width 0.5s;
+                }
+                &:hover:before {
+                    width: 100%;
+                }
+            }
+        }
+    }
+    .error {
+        margin-top: 5px;
+        color: $red;
+    }
+}
