@@ -1,0 +1,76 @@
+@import "vars";
+
+html, body, div, span, h1, h2, h3, h4, h5, h6,
+p, a, ul, li, label, form, input, textarea,
+header, footer, td, th, pre {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    line-height: 100%;
+    font-family: "PT Sans", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    box-sizing: border-box; // padding included in width
+}
+
+body {
+    padding: 20px;
+    padding-bottom: 50px; // leave room for footer
+    background: $blue;
+    min-height: 100%;
+    min-width: 940px;
+    font-size: 18px;
+}
+
+h1 {
+    font-size: 1.5em;
+    margin-bottom: 0.25em;
+}
+
+p {
+    margin-bottom: 5px;
+    line-height: 1.2em;
+}
+
+ul {
+    list-style: none;
+}
+
+header {
+    margin-bottom: 30px;
+    color: $white;
+    text-transform: uppercase;
+    h1 {
+        font-family: "Oswald";
+        font-size: 2em;
+    }
+}
+
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: $white;
+    font-size: 0.9em;
+    a {
+        color: $white;
+        &:hover {
+            color: $off-white;
+        }
+    }
+}
+
+.content {
+    background: $white;
+    padding: 30px;
+    color: $black;
+    width: 900px;
+    margin: 0 auto;
+    a {
+        color: $blue;
+        &:hover {
+            color: lighten($blue, 10);
+        }
+    }
+}

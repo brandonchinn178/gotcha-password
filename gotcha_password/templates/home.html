@@ -1,8 +1,17 @@
 {% extends "base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+{% endblock %}
 
 {% block content %}
     <h1>About this project</h1>
     <p>Passwords protect so much of our information, from emails to files on our computers. Yet people still manage to choose <a href="http://www.prweb.com/releases/2012/10/prweb10046001.htm">bad passwords</a>. Even without choosing bad passwords, passwords are flawed in that they often contain dictionary words, which are easier for people to remember. There is no inherent randomness in text-based passwords; there is a high probability that a vowel will follow a consonant, so attackers trying every password combination can eliminate some possibilities.</p>
     <p>In order to alleviate this problem, Jeremiah Blocki and his team have developed a password scheme supplementing the usual text passwords with image-based challenges that require constant user interaction. In other words, it is infeasible for computers to crack the passwords by themselves. The full study can be found <a href="http://dl.acm.org/citation.cfm?id=2517319">here</a>.</p>
     <p>In this study, you will be asked to follow the procedure to create an account using this new password scheme. Then, we ask that you come back tomorrow to attempt to log back in using the credentials you provided.</p>
+    <ul class="links">
+        <li><a href="#">Create an account</a></li>
+        <li><a href="#">Log in to an existing account</a></li>
+    </ul>
 {% endblock %}

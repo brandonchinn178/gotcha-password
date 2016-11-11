@@ -2,12 +2,13 @@ from __future__ import unicode_literals
 
 from django.core import validators
 from django.db import models
-from django.utils.crypto import pbkdf2, constant_time_compare
+from django.utils.crypto import constant_time_compare
 
 from random import SystemRandom
 from os import urandom
+from datetime import time
 
-from base.utils import *
+from base.utils import get_random_seed, hash_password, list_permutations
 
 # going to use our own User class
 class User(models.Model):
@@ -33,14 +34,6 @@ class User(models.Model):
     # storing permutation for research purposes
     permutation = models.CharField(max_length=50)
 
-    def hash_password(self, raw_password, salt, permutation):
-        """
-        Hash data of the form "<raw_password>$<comma sep permutations>"
-        """
-        password = '%s$%s' % (raw_password, ','.join(permutation))
-        hashed = pbkdf2(password, salt, HASH_ITERATIONS)
-        return '%s$%s' % (salt, hashed)
-
     def set_password(self, raw_password, labels):
         """
         Hashes and stores the user's password with the given parameters. Still
@@ -64,7 +57,7 @@ class User(models.Model):
         permutation = [l.number for l in labels]
 
         for p in list_permutations(permutation, self.num_images):
-            hashed = self.hash_password(raw_password, salt, p)
+            hashed = hash_password(raw_password, salt, p)
             if constant_time_compare(hashed, password):
                 return True
 
@@ -85,8 +78,28 @@ class Label(models.Model):
 
 class LoginAttempt(models.Model):
     """
-    Model representing each login attempt into the site and various statistics for the login attempt
+    Model representing each login attempt into the site and various statistics for the login
+    attempt. Stores the password resulting from hashing the raw password once and the permutation
+    sent for this login attempt.
     """
     user = models.ForeignKey(User)
     right_password = models.BooleanField()
     correct_images = models.PositiveSmallIntegerField()
+    raw_password = models.CharField(max_length=128) # not actually raw password, hashed once
+    permutation = models.CharField(max_length=50)
+
+    def timed_check_password(self, threshold, iterations):
+        """
+        Returns the number of seconds it takes to check if this password is correct, with the
+        given parameters.
+        """
+        start = time.time()
+
+        salt, password = self.user.password.split('$')
+        for p in list_permutations(permutation, self.user.num_images, threshold=threshold):
+            # iterations - 1 because raw_password already hashed once
+            hashed = hash_password(self.raw_password, salt, p, iterations=iterations - 1)
+            if constant_time_compare(hashed, password):
+                break
+
+        return time.time() - start

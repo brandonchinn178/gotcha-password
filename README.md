@@ -3,6 +3,15 @@ GOTCHA Password
 
 A server implementing the GOTCHA password scheme (details found [here](http://dl.acm.org/citation.cfm?id=2517319)) for the purposes of a final research project for UGIS 188.
 
+Installation
+------------
+1. `git clone` this repository
+1. If you have Conda, run `conda env create -f=environment.yml`. Otherwise, install `requirements.txt` in your favorite virtual environment
+1. Run `npm install && grunt build` (Requires Node.js and Sass)
+1. Run `python gotcha_password/manage.py migrate`
+1. Run `python gotcha_password/manage.py runserver`
+1. Go to `http://localhost:8000`
+
 Security
 --------
 
