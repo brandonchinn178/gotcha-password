@@ -15,16 +15,15 @@ class User(models.Model):
     username = models.CharField(
         max_length=30,
         unique=True,
-        help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
+        help_text='Required. 30 characters or fewer. Letters and digits only.',
         validators=[
             validators.RegexValidator(
-                r'^[\w.@+-]+$',
-                'Enter a valid username. This value may contain only '
-                  'letters, numbers ' 'and @/./+/-/_ characters.'
+                r'^\w+$',
+                'Enter a valid username. This value may contain only letters and numbers.'
             ),
         ],
         error_messages={
-            'unique': "A user with that username already exists.",
+            'unique': 'A user with that username already exists.',
         },
     )
     password = models.CharField(max_length=128)

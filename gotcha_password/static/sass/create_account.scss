@@ -1,0 +1,11 @@
+@import "vars";
+
+.content {
+    .errors {
+        margin: 10px 0;
+        color: $red;
+    }
+    label {
+        width: 125px;
+    }
+}

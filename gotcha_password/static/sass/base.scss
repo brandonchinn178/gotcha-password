@@ -6,8 +6,8 @@ header, footer, td, th, pre {
     position: relative;
     margin: 0;
     padding: 0;
-    line-height: 100%;
     font-family: "PT Sans", Helvetica, Arial, sans-serif;
+    font-size: 100%;
     font-weight: normal;
     box-sizing: border-box; // padding included in width
 }
@@ -33,6 +33,18 @@ p {
 
 ul {
     list-style: none;
+}
+
+label {
+    display: inline-block;
+    width: 90px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+input {
+    vertical-align: middle;
+    padding: 2px 5px 0;
 }
 
 header {
@@ -72,6 +84,16 @@ footer {
         color: $blue;
         &:hover {
             color: lighten($blue, 10);
+        }
+    }
+    form {
+        .field {
+            margin-bottom: 10px;
+        }
+        .help-text {
+            margin-bottom: 10px;
+            font-style: italic;
+            font-size: 0.9em;
         }
     }
 }
