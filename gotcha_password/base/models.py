@@ -10,8 +10,31 @@ from datetime import time
 
 from base.utils import get_random_seed, hash_password, list_permutations
 
+class UserManager(models.Manager):
+    def create(self, username, raw_password, seed, num_images, labels):
+        salt = get_random_seed()
+        permutation = [num for num, _ in labels]
+        SystemRandom().shuffle(permutation)
+
+        password = hash_password(raw_password, salt, permutation)
+
+        user = super(UserManager, self).create(
+            username=username,
+            password=password,
+            seed=seed,
+            num_images=num_images,
+            permutation=permutation,
+        )
+
+        for num, text in labels:
+            Label.objects.create(user=user, number=num, text=text)
+
+        return user
+
 # going to use our own User class
 class User(models.Model):
+    objects = UserManager()
+
     username = models.CharField(
         max_length=30,
         unique=True,
@@ -29,21 +52,13 @@ class User(models.Model):
     password = models.CharField(max_length=128)
     # seed for Extract function
     seed = models.CharField(max_length=12)
+    # random number of images, from 3 to 7
     num_images = models.PositiveSmallIntegerField()
     # storing permutation for research purposes
     permutation = models.CharField(max_length=50)
 
-    def set_password(self, raw_password, labels):
-        """
-        Hashes and stores the user's password with the given parameters. Still
-        needs to call .save()
-        """
-        salt = get_random_seed()
-        permutation = [l.number for l in labels]
-        SystemRandom().shuffle(permutation)
-
-        self.permutation = permutation
-        self.password = self.hash_password(raw_password, salt, permutation)
+    def __unicode__(self):
+        return self.username
 
     def check_password(self, raw_password, labels):
         """
@@ -74,6 +89,13 @@ class Label(models.Model):
     # range [0, user.num_images) representing the order of this label in the list of labels for the user
     number = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return '%s #%d (%s)' % (
+            self.user.username,
+            self.number,
+            self.text[:10]
+        )
 
 class LoginAttempt(models.Model):
     """

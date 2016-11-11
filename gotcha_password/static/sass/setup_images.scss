@@ -1,0 +1,26 @@
+@import "vars";
+
+.content {
+    text-align: center;
+    .image {
+        display: inline-block;
+        margin: 20px;
+        vertical-align: top;
+        svg {
+            display: block;
+            margin: 10px auto;
+        }
+    }
+    button.cancel {
+        background: $red;
+        border-color: $red;
+        &:hover {
+            color: $red;
+            background: $white;
+        }
+    }
+    .error {
+        margin-top: 5px;
+        color: $red;
+    }
+}

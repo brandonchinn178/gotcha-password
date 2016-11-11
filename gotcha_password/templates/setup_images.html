@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/setup_images.css' %}">
+    <script src="{% static 'js/setup_images.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <h1>Create an account</h1>
+    <p>For each image below, provide a descriptive label that represents that image. The label should be something you'd recognize later for the same image.</p>
+    <form method="post">
+        {% csrf_token %}
+        {% for image in images %}
+            <div class="image">
+                <svg width="{{ svg_width }}" height="{{ svg_height }}">
+                    <rect width="100%" height="100%" fill="#FFF" />
+                    {% for ellipse in image %}
+                        <ellipse
+                            cx="{{ ellipse.x }}"
+                            cy="{{ ellipse.y }}"
+                            rx="{{ ellipse.width }}"
+                            ry="{{ ellipse.height }}"
+                            fill="{{ ellipse.color }}"
+                            {% if ellipse.is_rotate %}
+                                transform="rotate({{ ellipse.rotation }}, {{ ellipse.x }}, {{ ellipse.y }})"
+                            {% endif %}
+                        />
+                    {% endfor %}
+                </svg>
+                <input name="label-{{ forloop.counter0 }}">
+            </div>
+        {% endfor %}
+        <div class="buttons">
+            <button class="submit">Submit</button>
+            <button class="cancel">Cancel</button>
+        </div>
+    </form>
+{% endblock %}

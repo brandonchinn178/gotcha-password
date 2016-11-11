@@ -1,7 +1,7 @@
 @import "vars";
 
 html, body, div, span, h1, h2, h3, h4, h5, h6,
-p, a, ul, li, label, form, input, textarea,
+p, a, ul, li, label, form, input, textarea, button,
 header, footer, td, th, pre {
     position: relative;
     margin: 0;
@@ -45,6 +45,24 @@ label {
 input {
     vertical-align: middle;
     padding: 2px 5px 0;
+    width: 250px;
+}
+
+button {
+    margin: 0 5px;
+    padding: 7px 20px 5px;
+    background: $blue;
+    color: $white;
+    border: 3px solid $blue;
+    border-radius: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 0.2s, background 0.2s;
+    outline: 0;
+    &:hover {
+        background: $white;
+        color: $blue;
+    }
 }
 
 header {
