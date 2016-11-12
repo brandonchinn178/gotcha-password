@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.core import validators
+from django.core import validators, signing
 from django.db import models
 from django.utils.crypto import constant_time_compare
 
@@ -58,6 +58,12 @@ class User(models.Model):
     def __unicode__(self):
         return self.username
 
+    def get_salt(self):
+        return self.password.split('$')[0]
+
+    def get_permutation(self):
+        return map(int, self.permutation.split(','))
+
     def set_password(self, raw_password, labels):
         password, permutation = make_password(raw_password, labels)
 
@@ -72,13 +78,11 @@ class User(models.Model):
         Returns True if the given password and the ordered list of labels match the
         stored password hash.
         """
-        salt, password = self.password.split('$')
-
         # in a true implementation, this would list all of the possibilities that are
         # wrong within a certain threshold. instead of allowing wrong images, this
         # will check for exact correctness
-        hashed = hash_password(raw_password, salt, permutation)
-        return constant_time_compare(hashed, password)
+        hashed = hash_password(raw_password, self.get_salt(), permutation)
+        return constant_time_compare(hashed, self.password)
 
 class Label(models.Model):
     """
@@ -109,8 +113,12 @@ class LoginAttempt(models.Model):
     user = models.ForeignKey(User)
     right_password = models.BooleanField()
     correct_images = models.PositiveSmallIntegerField()
-    raw_password = models.CharField(max_length=128) # not actually raw password, hashed once
+    password = models.CharField(max_length=128) # the password the user used to log in again, encrypted
     permutation = models.CharField(max_length=50)
+
+    @staticmethod
+    def encode(password):
+        return signing.dumps(password, salt='login_attempt')
 
     def __unicode__(self):
         if self.right_password:
@@ -120,18 +128,23 @@ class LoginAttempt(models.Model):
             text = 'invalid'
         return '%s (%s)' % (self.user.username, text)
 
+    def get_permutation(self):
+        return map(int, self.permutation.split(','))
+
     def timed_check_password(self, threshold, iterations):
         """
         Returns the number of seconds it takes to check if this password is correct, with the
         given parameters.
         """
         start = time.time()
+        salt = self.user.get_salt()
+        password = signing.loads(self.password, salt='login_attempt')
+        # iterations - 1, because raw_password already hashed once
+        iterations -= 1
 
-        salt, password = self.user.password.split('$')
-        for p in list_permutations(permutation, self.user.num_images, threshold=threshold):
-            # iterations - 1 because raw_password already hashed once
-            hashed = hash_password(self.raw_password, salt, p, iterations=iterations - 1)
-            if constant_time_compare(hashed, password):
+        for p in list_permutations(self.get_permutation(), self.user.num_images, threshold=threshold):
+            hashed = hash_password(password, salt, p, iterations=iterations)
+            if constant_time_compare(hashed, self.user.password):
                 break
 
         return time.time() - start

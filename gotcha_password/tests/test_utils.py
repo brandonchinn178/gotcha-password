@@ -20,6 +20,15 @@ class UtilitiesTestCase(TestCase):
         _, permutation2 = make_password(raw_password, labels)
         self.assertNotEqual(permutation1, permutation2)
 
+    def test_hash_password(self):
+        raw_password = 'password'
+        seed = get_random_seed()
+        permutation = range(10)
+        self.assertEqual(
+            hash_password(raw_password, seed, permutation),
+            hash_password(raw_password, seed, permutation),
+        )
+
     def test_list_permutations(self):
         pass
 

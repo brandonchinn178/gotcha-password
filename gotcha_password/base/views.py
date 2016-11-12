@@ -107,24 +107,22 @@ class LoginVerifyView(TemplateView):
         """
         credentials = self.request.session['credentials']
         user = User.objects.get(username=credentials['username'])
-        salt = user.password.split('$')[0]
         labels = map(int, extract_labels(request.POST))
 
         # typically, here is where authentication would happen. instead of authenticating,
         # show a page with user results and save in a LoginAttempt
         right_password = user.check_password(credentials['password'], labels)
-
-        permutation = map(int, user.permutation.split(','))
+        permutation = user.get_permutation()
         correct_images = sum([
             1 if val == permutation[i] else 0
             for i, val in enumerate(labels)
         ])
-        raw_password = hash_password(credentials['password'], salt, labels, iterations=1)
+
         LoginAttempt.objects.create(
             user=user,
             right_password=right_password,
             correct_images=correct_images,
-            raw_password=raw_password,
+            password=LoginAttempt.encode(credentials['password']),
             permutation=','.join(map(str, labels)),
         )
 
