@@ -3,6 +3,7 @@ from django.utils.crypto import get_random_string, pbkdf2
 import random, base64
 import os
 from hashlib import sha224
+from cryptography.fernet import Fernet
 
 ACCURACY_THRESHOLD = 2
 HASH_ITERATIONS = 24000
@@ -36,10 +37,10 @@ def hash_password(raw_password, salt, permutation, iterations=HASH_ITERATIONS):
     return '%s$%s' % (salt, hashed)
 
 def encode(val):
-    return Fernet(FERNET_KEY).encrypt(val)
+    return Fernet(FERNET_KEY).encrypt(bytes(val))
 
 def decode(token):
-    return Fernet(FERNET_KEY).decrypt(token)
+    return Fernet(FERNET_KEY).decrypt(bytes(token))
 
 def list_permutations(permutation, max_val, threshold=ACCURACY_THRESHOLD):
     """

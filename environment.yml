@@ -2,3 +2,5 @@ name: gotcha-password
 dependencies:
   - python=2.7
   - django==1.10.3
+  - pip:
+    - cryptography==1.5.3

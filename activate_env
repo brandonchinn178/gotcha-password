@@ -1,0 +1,2 @@
+source activate gotcha-password
+source .env

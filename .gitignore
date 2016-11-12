@@ -1,4 +1,6 @@
 .DS_Store
+.env
+
 *.pyc
 *.sqlite3
 *.css

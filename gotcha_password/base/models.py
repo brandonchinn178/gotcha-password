@@ -117,7 +117,7 @@ class LoginAttempt(models.Model):
     def __unicode__(self):
         if self.right_password:
             percentage = float(self.correct_images) / self.user.num_images * 100
-            text = '%0.1f%' % percentage
+            text = '%0.1f%%' % percentage
         else:
             text = 'invalid'
         return '%s (%s)' % (self.user.username, text)
