@@ -112,7 +112,7 @@ if IS_HEROKU:
     AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
     AWS_PRELOAD_METADATA = True
     AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-    AWS_S3_HOST = 's3-us-west-2.amazonaws.com'
+    AWS_S3_HOST = 's3-us-west-1.amazonaws.com'
 
     STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
     STATICFILES_STORAGE = 'base.custom_storages.StaticStorage'
