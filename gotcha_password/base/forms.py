@@ -10,7 +10,7 @@ class PasswordField(forms.CharField):
 class CreateAccountForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username']
+        fields = ['username', 'email', 'password1', 'password2']
 
     password1 = PasswordField(label='Password')
     password2 = PasswordField(label='Verify password')
@@ -18,7 +18,10 @@ class CreateAccountForm(forms.ModelForm):
 
     @property
     def credential_fields(self):
-        return [self[field] for field in ['username', 'password1', 'password2']]
+        return [
+            self[field]
+            for field in ['username', 'email', 'password1', 'password2']
+        ]
 
     def clean(self):
         cleaned_data = super(CreateAccountForm, self).clean()

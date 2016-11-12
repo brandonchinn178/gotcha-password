@@ -27,6 +27,7 @@ class CreateAccountView(FormView):
         """
         self.request.session['credentials'] = {
             'username': form.cleaned_data['username'],
+            'email': form.cleaned_data['email'],
             'raw_password': form.cleaned_data['password1'],
             'seed': get_random_seed(),
             'num_images': randint(3, 7),
