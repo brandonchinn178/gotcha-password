@@ -12,14 +12,26 @@ $(document).ready(function() {
     $("button.submit").click(function() {
         $(".error").remove();
 
+        var unique = {};
         var empty = $(".image").map(function() {
-            if ($(this).find("input:checked").length === 0) {
-                return false;
+            var value = $(this).find("input:checked").val();
+            if (value === undefined) {
+                // no input was selected
+                return -1;
+            } else {
+                unique[value] = true;
             }
         });
 
+        // check if any image has no labels
         if (empty.length > 0) {
             showError(".buttons", "Please select a label for each image.");
+            return false;
+        }
+
+        // check that no labels are repeated
+        if (unique.length !== $(".image").length) {
+            showError(".buttons", "Please use each label exactly once.");
             return false;
         }
     });
