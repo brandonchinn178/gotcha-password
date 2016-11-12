@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.crypto import constant_time_compare
 
 import time
+from itertools import permutations
 
 from base.utils import *
 
@@ -127,6 +128,8 @@ class LoginAttempt(models.Model):
     def get_permutation(self):
         return map(int, self.permutation.split(','))
 
+    ## TESTING FUNCTIONS
+
     def check_password_timed(self, threshold, iterations):
         """
         Returns the number of seconds it takes to check if this password is correct, with the
@@ -140,5 +143,23 @@ class LoginAttempt(models.Model):
             hashed = hash_password(password, salt, p, iterations=iterations)
             if constant_time_compare(hashed, self.user.password):
                 break
+
+        return time.time() - start
+
+    def crack_permutation(self, threshold, iterations):
+        """
+        Returns the number of seconds it takes to check every permutation against
+        the password, simulating an attacker that knows the password but not the
+        permutation.
+        """
+        start = time.time()
+        salt = self.user.get_salt()
+        password = decode(self.password)
+
+        for permutation in permutations(range(self.user.num_images)):
+            for p in list_permutations(permutation, threshold=threshold):
+                hashed = hash_password(password, salt, p, iterations=iterations)
+                if constant_time_compare(hashed, self.user.password):
+                    break
 
         return time.time() - start
