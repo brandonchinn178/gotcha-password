@@ -122,7 +122,7 @@ class LoginVerifyView(TemplateView):
             user=user,
             right_password=right_password,
             correct_images=correct_images,
-            password=LoginAttempt.encode(credentials['password']),
+            password=encode(credentials['password']),
             permutation=','.join(map(str, labels)),
         )
 

@@ -16,7 +16,7 @@
     {% endif %}
     <form method="post">
         {% csrf_token %}
-        {% for field in form %}
+        {% for field in form.credential_fields %}
             <div class="field {{ field.html_name }}">
                 {{ field.label_tag }}
                 {{ field }}
@@ -25,6 +25,12 @@
                 {% endif %}
             </div>
         {% endfor %}
+        <div class="field consent">
+            <h2>Disclaimer</h2>
+            <p class="disclaimer">Usually, passwords are <a href="https://en.wikipedia.org/wiki/Cryptographic_hash_function">practically impossible to decode</a> when stored on a server. However, I will be storing an encrypted version of your password every time you log back in, for the purpose of data analysis (methodology and plan for analysis can be found <a href="{% static 'proposal.pdf' %}">here</a>). The encryption should also be secure (full specs <a href="https://github.com/fernet/spec/blob/master/Spec.md">here</a>), but if someone manages to steal the encryption key (highly unlikely), your password could be vulnerable. Since I do have access to the encryption key, I have the power to decode your passwords, but I promise that I won't directly see your passwords. If you have any questions, please contact me at <a href="mailto:brandonchinn178@gmail.com">brandonchinn178@gmail.com</a>.</p>
+            <label for="id_consent">I consent to participating in this study and understand the associated risks:</label>
+            {{ form.consent }}
+        </div>
         <div class="buttons">
             <button>Submit</button>
             <button class="cancel">Cancel</button>

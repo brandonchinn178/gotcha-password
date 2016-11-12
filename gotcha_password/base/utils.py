@@ -1,13 +1,14 @@
 from django.utils.crypto import get_random_string, pbkdf2
 
 import random, base64
-from os import urandom
+import os
 from hashlib import sha224
 
 ACCURACY_THRESHOLD = 2
 HASH_ITERATIONS = 24000
 SVG_WIDTH = 300
 SVG_HEIGHT = 300
+FERNET_KEY = os.environ['FERNET_KEY']
 
 def get_random_seed():
     """
@@ -33,6 +34,12 @@ def hash_password(raw_password, salt, permutation, iterations=HASH_ITERATIONS):
     hashed = pbkdf2(password, salt, iterations)
     hashed = base64.b64encode(hashed).decode('ascii').strip()
     return '%s$%s' % (salt, hashed)
+
+def encode(val):
+    return Fernet(FERNET_KEY).encrypt(val)
+
+def decode(token):
+    return Fernet(FERNET_KEY).decrypt(token)
 
 def list_permutations(permutation, max_val, threshold=ACCURACY_THRESHOLD):
     """
@@ -63,7 +70,7 @@ def generate_images(num_images, seed):
         images.append(image)
 
     # re-randomize seed
-    random.seed(urandom(20))
+    random.seed(os.urandom(20))
 
     return images
 

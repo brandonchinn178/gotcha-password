@@ -1,11 +1,9 @@
 from __future__ import unicode_literals
 
-from django.core import validators, signing
+from django.core import validators
 from django.db import models
 from django.utils.crypto import constant_time_compare
 
-from random import SystemRandom
-from os import urandom
 from datetime import time
 
 from base.utils import *
@@ -116,10 +114,6 @@ class LoginAttempt(models.Model):
     password = models.CharField(max_length=128) # the password the user used to log in again, encrypted
     permutation = models.CharField(max_length=50)
 
-    @staticmethod
-    def encode(password):
-        return signing.dumps(password, salt='login_attempt')
-
     def __unicode__(self):
         if self.right_password:
             percentage = float(self.correct_images) / self.user.num_images * 100
@@ -138,7 +132,7 @@ class LoginAttempt(models.Model):
         """
         start = time.time()
         salt = self.user.get_salt()
-        password = signing.loads(self.password, salt='login_attempt')
+        password = decode(self.password)
         # iterations - 1, because raw_password already hashed once
         iterations -= 1
 

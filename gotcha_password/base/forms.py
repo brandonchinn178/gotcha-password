@@ -14,6 +14,11 @@ class CreateAccountForm(forms.ModelForm):
 
     password1 = PasswordField(label='Password')
     password2 = PasswordField(label='Verify password')
+    consent = forms.BooleanField()
+
+    @property
+    def credential_fields(self):
+        return [self[field] for field in ['username', 'password1', 'password2']]
 
     def clean(self):
         cleaned_data = super(CreateAccountForm, self).clean()

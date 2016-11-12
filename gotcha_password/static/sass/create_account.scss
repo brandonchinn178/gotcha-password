@@ -1,6 +1,18 @@
+@import "vars";
+
 .content {
     text-align: center;
     label {
         width: 125px;
+    }
+    .field.consent {
+        margin-bottom: 20px;
+        .disclaimer {
+            text-align: left;
+        }
+        label {
+            width: initial;
+            font-weight: bold;
+        }
     }
 }
