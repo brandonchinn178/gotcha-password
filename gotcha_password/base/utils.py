@@ -4,6 +4,7 @@ import random, base64
 import os
 from hashlib import sha224
 from cryptography.fernet import Fernet
+from itertools import chain, combinations, product
 
 ACCURACY_THRESHOLD = 2
 HASH_ITERATIONS = 24000
@@ -42,12 +43,29 @@ def encode(val):
 def decode(token):
     return Fernet(FERNET_KEY).decrypt(bytes(token))
 
-def list_permutations(permutation, max_val, threshold=ACCURACY_THRESHOLD):
+def list_permutations(permutation, threshold=ACCURACY_THRESHOLD):
     """
-    Generate all permutations that differ from the given permutation by ACCURACY_THRESHOLD,
-    where the items in the permutation can be anything in the range [0, max_val)
+    Generate all permutations that differ from the given permutation by ACCURACY_THRESHOLD.
+
+    Source: http://codereview.stackexchange.com/a/88919
     """
-    pass
+    num_images = len(permutation)
+    threshold = min(threshold, num_images)
+
+    def _list_permutations(diff):
+        # diff-length tuples representing the indices to modify
+        for positions in combinations(range(num_images), diff):
+            # the values to change with those positions; using all except last
+            # value to only use the last value on repetitions
+            for values in product(range(num_images - 1), repeat=diff):
+                cousin = list(permutation)
+                for i, v in zip(positions, values):
+                    cousin[i] = v if cousin[i] != v else num_images - 1
+                # only return if no duplicates
+                if len(set(cousin)) == len(cousin):
+                    yield cousin
+
+    return chain.from_iterable(_list_permutations(i) for i in range(threshold + 1))
 
 def extract(pw, seed):
     """

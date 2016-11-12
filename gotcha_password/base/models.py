@@ -31,6 +31,7 @@ class UserManager(models.Manager):
 class User(models.Model):
     objects = UserManager()
 
+    ## TODO: EMAIL
     username = models.CharField(
         max_length=30,
         unique=True,
@@ -108,7 +109,7 @@ class LoginAttempt(models.Model):
     attempt. Stores the password resulting from hashing the raw password once and the permutation
     sent for this login attempt.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='logins')
     right_password = models.BooleanField()
     correct_images = models.PositiveSmallIntegerField()
     password = models.CharField(max_length=128) # the password the user used to log in again, encrypted
@@ -133,10 +134,8 @@ class LoginAttempt(models.Model):
         start = time.time()
         salt = self.user.get_salt()
         password = decode(self.password)
-        # iterations - 1, because raw_password already hashed once
-        iterations -= 1
 
-        for p in list_permutations(self.get_permutation(), self.user.num_images, threshold=threshold):
+        for p in list_permutations(self.get_permutation(), threshold=threshold):
             hashed = hash_password(password, salt, p, iterations=iterations)
             if constant_time_compare(hashed, self.user.password):
                 break

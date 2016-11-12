@@ -30,7 +30,21 @@ class UtilitiesTestCase(TestCase):
         )
 
     def test_list_permutations(self):
-        pass
+        permutation = [0, 1, 2]
+        diffs = list(list_permutations(permutation, 0))
+        self.assertEqual(len(diffs), 1)
+        self.assertEqual(diffs[0], permutation)
+
+        diffs = list(list_permutations(permutation, 2))
+        self.assertEqual(diffs, [
+            [0,1,2], [1,0,2], [2,1,0], [0,2,1]
+        ])
+
+        diffs = list_permutations([1,1,1], 2)
+        for diff in diffs:
+            # check no duplicates
+            self.assertEqual(len(set(diff)), len(diff))
+
 
     def test_extract(self):
         raw_password = 'password'
