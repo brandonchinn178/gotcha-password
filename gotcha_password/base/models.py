@@ -137,6 +137,9 @@ class LoginAttempt(models.Model):
     def get_permutation(self):
         return map(int, self.permutation.split(','))
 
+    def get_benchmarks(self):
+        return json.loads(self.benchmarks.read())
+
     def set_benchmarks(self, benchmarks):
         benchmarks = json.dumps(benchmarks)
         filename = '%s_%s.json' % (
