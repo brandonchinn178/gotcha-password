@@ -5,10 +5,17 @@ import os, sys, redis
 
 from base.models import LoginAttempt
 
-def run_benchmarks(logins):
+def run_benchmarks(logins, log_progress):
+    def log(msg='#'):
+        if log_progress:
+            sys.stdout.write(msg)
+            sys.stdout.flush()
+
     for login_attempt in logins:
-        sys.stdout.write('Running benchmarks for %s... ' % login_attempt)
-        sys.stdout.flush()
+        if log_progress:
+            sys.stdout.write('Running benchmarks for %s... ' % login_attempt)
+        else:
+            print 'Running benchmarks for %s...' % login_attempt
 
         benchmarks = {
             # algorithm to check password after logging in
@@ -27,21 +34,18 @@ def run_benchmarks(logins):
             },
         }
         for i in range(7):
-            sys.stdout.write('#')
-            sys.stdout.flush()
+            log()
             benchmarks['check']['accuracy'][i] = login_attempt.check_password_timed(i, 1)
             benchmarks['crack']['accuracy'][i] = login_attempt.crack_permutation(i, 1)
 
         for i in range(10):
-            sys.stdout.write('#')
-            sys.stdout.flush()
+            log()
             iterations = (i + 1) * 25
             benchmarks['check']['iterations'][i] = login_attempt.check_password_timed(2, iterations)
             benchmarks['crack']['iterations'][i] = login_attempt.crack_permutation(2, iterations)
 
         login_attempt.set_benchmarks(benchmarks)
-        sys.stdout.write('\n')
-        sys.stdout.flush()
+        log('\n')
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
@@ -49,7 +53,7 @@ class Command(BaseCommand):
         redis_url = os.environ.get('REDIS_URL', None)
         if redis_url:
             conn = redis.from_url(redis_url)
-            Queue(connection=conn).enqueue(run_benchmarks, list(logins))
+            Queue(connection=conn).enqueue(run_benchmarks, logins, False)
             print 'Benchmarks queued.'
         else:
-            run_benchmarks(logins)
+            run_benchmarks(logins, True)
