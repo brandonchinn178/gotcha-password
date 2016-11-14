@@ -76,11 +76,7 @@ def run_collect_data(log_progress):
     users_sheet.add_rows(values)
 
     logins_sheet = ExcelSheet(workbook, 'Login Attempts')
-    fields = ['timestamp', 'user__username', 'right_password', 'correct_images', 'user__num_images', 'percent_correct']
-    values = LoginAttempt.objects.annotate(percent_correct=percent_correct).values_list(*fields)
-    logins_sheet.write_headers(fields)
-    logins_sheet.add_rows(values)
-
+    logins_sheet.write_headers(['Timestamp', 'Username', 'Right password?', '# correct images', '# total images', 'Percent correct'])
     images_accuracy = ExcelSheet(workbook, 'NumImages_Accuracy')
     images_accuracy.write_headers(['Number of Images', 'Percent Correct'])
     check_threshold = ExcelSheet(workbook, 'Check_Threshold')
@@ -95,6 +91,15 @@ def run_collect_data(log_progress):
         num_images = login.user.num_images
         images_accuracy.add_row([num_images, login.percent_correct])
         benchmarks = login.get_benchmarks()
+
+        logins_sheet.add_row([
+            login.timestamp,
+            login.user.username,
+            login.right_password,
+            login.correct_images,
+            num_images,
+            login.percent_correct
+        ])
         for threshold, time in enumerate(benchmarks['check']['accuracy']):
             check_threshold.add_row([num_images, threshold, time])
         for i, time in enumerate(benchmarks['check']['iterations']):
