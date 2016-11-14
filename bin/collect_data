@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+python gotcha_password/manage.py run_benchmarks
+python gotcha_password/manage.py collect_data
