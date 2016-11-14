@@ -55,7 +55,7 @@ def run_collect_data(log_progress):
             users_sheet.write(i + 1, j, val)
 
     logins_sheet = excel.add_sheet('Login Attempts')
-    fields = ['timestamp', 'user__username', 'right_password', 'correct_images', 'percent_correct']
+    fields = ['timestamp', 'user__username', 'right_password', 'correct_images', 'user__num_images', 'percent_correct']
     values = LoginAttempt.objects.annotate(percent_correct=percent_correct).values_list(*fields)
     for i, field in enumerate(fields):
         logins_sheet.write(0, i, field)

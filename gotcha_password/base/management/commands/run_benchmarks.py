@@ -15,6 +15,8 @@ def run_benchmarks(log_progress):
     for login_attempt in LoginAttempt.objects.filter(benchmarks=None):
         log('Running benchmarks for %s... ' % login_attempt, newline=False)
 
+        # generating permutations is expensive; limit if user's num_images gets too high
+        crack_accuracy = 7 if login_attempt.user.num_images < 6 else 4
         benchmarks = {
             # algorithm to check password after logging in
             'check': {
@@ -27,13 +29,16 @@ def run_benchmarks(log_progress):
             },
             # algorithm to brute force permutation
             'crack': {
-                'accuracy': [-1 for i in range(7)],
+                'accuracy': [-1 for i in range(crack_accuracy)],
                 'iterations': [-1 for i in range(10)],
             },
         }
         for i in range(7):
             log('#', newline=False)
             benchmarks['check']['accuracy'][i] = login_attempt.check_password_timed(i, 1)
+
+        for i in range(crack_accuracy):
+            log('#', newline=False)
             benchmarks['crack']['accuracy'][i] = login_attempt.crack_permutation(i, 1)
 
         for i in range(10):
