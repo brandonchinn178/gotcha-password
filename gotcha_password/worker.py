@@ -3,6 +3,9 @@ import os
 import redis
 from rq import Worker, Queue, Connection
 
+# activate django settings
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gotcha_password.settings")
+
 listen = ['high', 'default', 'low']
 
 redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
