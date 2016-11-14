@@ -1,9 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.files.storage import default_storage
 from django.db.models import Min, Max, Avg, F
+from django.utils.timezone import localtime
 
-from rq import Queue
 import os, sys, redis
+from rq import Queue
+from xlwt.Workbook import Workbook
+from datetime import datetime
 
 from base.models import *
 
@@ -68,6 +71,33 @@ def run_benchmarks(log_progress):
             'Average percentage: %f' % (sum(percentages) / float(total)),
             'Median percentage: %f' % median,
         ]))
+
+    # Save a file with all the data as an Excel file
+    log('Saving all data...')
+    excel = Workbook()
+
+    users_sheet = excel.add_sheet('Users')
+    fields = ['username', 'email', 'num_images', 'permutation', 'timestamp']
+    for i, field in enumerate(fields):
+        users_sheet.write(0, i, field)
+    for i, user in enumerate(User.objects.values_list(*fields)):
+        for j, val in enumerate(user):
+            if isinstance(val, datetime):
+                val = localtime(val).strftime('%m/%d/%Y %H:%M:%S')
+            users_sheet.write(i + 1, j, val)
+
+    logins_sheet = excel.add_sheet('Login Attempts')
+    fields = ['user__username', 'right_password', 'correct_images', 'user__num_images', 'permutation', 'timestamp']
+    for i, field in enumerate(fields):
+        logins_sheet.write(0, i, field)
+    for i, login in enumerate(LoginAttempt.objects.values_list(*fields)):
+        for j, val in enumerate(login):
+            if isinstance(val, datetime):
+                val = localtime(val).strftime('%m/%d/%Y %H:%M:%S')
+            logins_sheet.write(i + 1, j, val)
+
+    with default_storage.open('data.xls', 'w+') as f:
+        excel.save(f)
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
