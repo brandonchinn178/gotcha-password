@@ -139,7 +139,9 @@ class LoginAttempt(models.Model):
 
     def set_benchmarks(self, benchmarks):
         benchmarks = json.dumps(benchmarks)
-        filename = '%s_%s.json' % (self.user.username, self.timestamp)
+        filename = '%s_%s.json' % (
+            self.user.username, self.timestamp.strftime('%m_%d_%Y_%H:%M:%S')
+        )
         self.benchmarks.delete()
         self.benchmarks.save(filename, ContentFile(benchmarks))
         self.save()
