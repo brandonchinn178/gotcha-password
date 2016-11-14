@@ -58,6 +58,7 @@ class User(models.Model):
     num_images = models.PositiveSmallIntegerField()
     # storing permutation for research purposes
     permutation = models.CharField(max_length=50)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         return self.username
@@ -120,6 +121,7 @@ class LoginAttempt(models.Model):
     correct_images = models.PositiveSmallIntegerField()
     password = models.CharField(max_length=128) # the password the user used to log in again, encrypted
     permutation = models.CharField(max_length=50)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         if self.right_password:
