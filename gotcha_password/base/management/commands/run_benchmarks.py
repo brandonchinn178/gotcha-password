@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from rq import Queue
-import os
-import sys
+import os, sys, redis
 
 from base.models import LoginAttempt
 
@@ -51,5 +50,6 @@ class Command(BaseCommand):
         if redis_url:
             conn = redis.from_url(redis_url)
             Queue(connection=conn).enqueue(run_benchmarks, logins)
+            print 'Benchmarks queued.'
         else:
             run_benchmarks(logins)
