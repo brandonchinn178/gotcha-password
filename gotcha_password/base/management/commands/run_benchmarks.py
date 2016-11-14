@@ -78,19 +78,21 @@ def run_benchmarks(log_progress):
 
     users_sheet = excel.add_sheet('Users')
     fields = ['username', 'email', 'num_images', 'permutation', 'timestamp']
+    values = User.objects.values_list(*fields)
     for i, field in enumerate(fields):
         users_sheet.write(0, i, field)
-    for i, user in enumerate(User.objects.values_list(*fields)):
+    for i, user in enumerate(values):
         for j, val in enumerate(user):
             if isinstance(val, datetime):
                 val = localtime(val).strftime('%m/%d/%Y %H:%M:%S')
             users_sheet.write(i + 1, j, val)
 
     logins_sheet = excel.add_sheet('Login Attempts')
-    fields = ['user__username', 'right_password', 'correct_images', 'user__num_images', 'permutation', 'timestamp']
+    fields = ['user__username', 'right_password', 'correct_images', 'percent_correct', 'permutation', 'timestamp']
+    values = LoginAttempt.objects.annotate(percent_correct=percent_correct).values_list(*fields)
     for i, field in enumerate(fields):
         logins_sheet.write(0, i, field)
-    for i, login in enumerate(LoginAttempt.objects.values_list(*fields)):
+    for i, login in enumerate(values):
         for j, val in enumerate(login):
             if isinstance(val, datetime):
                 val = localtime(val).strftime('%m/%d/%Y %H:%M:%S')
