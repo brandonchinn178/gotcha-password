@@ -53,7 +53,7 @@ class Command(BaseCommand):
         redis_url = os.environ.get('REDIS_URL', None)
         if redis_url:
             conn = redis.from_url(redis_url)
-            Queue(connection=conn).enqueue(run_benchmarks, list(logins), False)
+            Queue(connection=conn).enqueue(run_benchmarks, logins, False)
             print 'Benchmarks queued.'
         else:
             run_benchmarks(logins, True)

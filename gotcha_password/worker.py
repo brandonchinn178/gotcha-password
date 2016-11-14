@@ -1,10 +1,9 @@
-import os
-
-import redis
+import os, redis, django
 from rq import Worker, Queue, Connection
 
 # activate django settings
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gotcha_password.settings")
+django.setup()
 
 listen = ['high', 'default', 'low']
 
