@@ -123,7 +123,7 @@ class LoginVerifyView(TemplateView):
             user=user,
             right_password=right_password,
             correct_images=correct_images,
-            password=encode(credentials['password']),
+            password=hash_once(credentials['password'], user.salt),
             permutation=','.join(map(str, labels)),
         )
 

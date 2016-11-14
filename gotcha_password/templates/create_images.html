@@ -8,7 +8,7 @@
 
 {% block content %}
     <h1>Create an account</h1>
-    <p class="explanation">For each image below, provide a descriptive label that represents that image. The label should be something you'd recognize later for the same image.</p>
+    <p class="explanation">For each image below, provide a descriptive label (the more descriptive the better) that represents that image. The label should be something you'd recognize later for the same image.</p>
     <form method="post">
         {% csrf_token %}
         {% for image in images %}
