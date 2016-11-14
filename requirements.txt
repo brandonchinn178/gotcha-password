@@ -1,7 +1,6 @@
 # Use requirements.txt for Heroku
 
 django==1.10.3
-cryptography==1.5.3
 
 # heroku packages
 boto==2.35.2

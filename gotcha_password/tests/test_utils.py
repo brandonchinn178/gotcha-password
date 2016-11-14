@@ -13,11 +13,8 @@ class UtilitiesTestCase(TestCase):
     def test_make_password(self):
         raw_password = 'password'
         labels = [char for char in string.ascii_lowercase]
-        password, permutation1 = make_password(raw_password, labels)
-
-        self.assertEqual(len(password.split('$')), 2)
-
-        _, permutation2 = make_password(raw_password, labels)
+        _, _, permutation1 = make_password(raw_password, labels)
+        _, _, permutation2 = make_password(raw_password, labels)
         self.assertNotEqual(permutation1, permutation2)
 
     def test_hash_password(self):
@@ -70,7 +67,3 @@ class UtilitiesTestCase(TestCase):
         }
         extracted = extract_labels(data)
         self.assertEqual(extracted, ['2', '0', '1'])
-
-    def test_encode_decode(self):
-        val = 'myRand0mPa$$word'
-        self.assertEqual(val, decode(encode(val)))

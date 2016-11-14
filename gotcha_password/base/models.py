@@ -11,12 +11,13 @@ from base.utils import *
 
 class UserManager(models.Manager):
     def create(self, username, email, raw_password, seed, num_images, labels):
-        password, permutation = make_password(raw_password, labels)
+        password, salt, permutation = make_password(raw_password, labels)
 
         user = super(UserManager, self).create(
             username=username,
             email=email,
             password=password,
+            salt=salt,
             seed=seed,
             num_images=num_images,
             permutation=','.join(map(str, permutation)),
@@ -48,7 +49,9 @@ class User(models.Model):
         },
     )
     email = models.EmailField(help_text='Will only be used for communications about this study.')
+    # stores just the raw password hashed one time (without salt or permutation)
     password = models.CharField(max_length=128)
+    salt = models.CharField(max_length=12)
     # seed for Extract function
     seed = models.CharField(max_length=12)
     # random number of images, from 3 to 7
@@ -59,20 +62,19 @@ class User(models.Model):
     def __unicode__(self):
         return self.username
 
-    def get_salt(self):
-        return self.password.split('$')[0]
-
     def get_permutation(self):
         return map(int, self.permutation.split(','))
 
     def set_password(self, raw_password, labels):
-        password, permutation = make_password(raw_password, labels)
-
-        self.password = password
+        self.password, self.salt, permutation = make_password(raw_password, labels)
         self.permutation = ','.join(map(str, permutation))
 
         for i, num in enumerate(permutation):
             self.labels.filter(number=num).update(text=labels[i])
+
+    def get_hashed_password(self, iterations=HASH_ITERATIONS):
+        permutation = self.get_permutation()
+        return hash_password(self.password, self.salt, permutation, iterations)
 
     def check_password(self, raw_password, permutation):
         """
@@ -82,8 +84,10 @@ class User(models.Model):
         # in a true implementation, this would list all of the possibilities that are
         # wrong within a certain threshold. instead of allowing wrong images, this
         # will check for exact correctness
-        hashed = hash_password(raw_password, self.get_salt(), permutation)
-        return constant_time_compare(hashed, self.password)
+        hashed_once = hash_once(raw_password, self.salt)
+        hashed = hash_password(hashed_once, self.salt, permutation)
+        password = self.get_hashed_password()
+        return constant_time_compare(hashed, password)
 
 class Label(models.Model):
     """
@@ -135,13 +139,13 @@ class LoginAttempt(models.Model):
         Returns the number of seconds it takes to check if this password is correct, with the
         given parameters.
         """
+        salt = self.user.salt
+        user_password = self.user.get_hashed_password(iterations)
         start = time.time()
-        salt = self.user.get_salt()
-        password = decode(self.password)
 
         for p in list_permutations(self.get_permutation(), threshold=threshold):
-            hashed = hash_password(password, salt, p, iterations=iterations)
-            if constant_time_compare(hashed, self.user.password):
+            hashed = hash_password(self.password, salt, p, iterations=iterations)
+            if constant_time_compare(hashed, user_password):
                 break
 
         return time.time() - start
@@ -152,14 +156,14 @@ class LoginAttempt(models.Model):
         the password, simulating an attacker that knows the password but not the
         permutation.
         """
+        salt = self.user.salt
+        user_password = self.user.get_hashed_password(iterations)
         start = time.time()
-        salt = self.user.get_salt()
-        password = decode(self.password)
 
         for permutation in permutations(range(self.user.num_images)):
             for p in list_permutations(permutation, threshold=threshold):
-                hashed = hash_password(password, salt, p, iterations=iterations)
-                if constant_time_compare(hashed, self.user.password):
+                hashed = hash_password(self.password, salt, p, iterations=iterations)
+                if constant_time_compare(hashed, user_password):
                     break
 
         return time.time() - start

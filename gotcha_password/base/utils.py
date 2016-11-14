@@ -3,14 +3,12 @@ from django.utils.crypto import get_random_string, pbkdf2
 import random, base64
 import os
 from hashlib import sha224
-from cryptography.fernet import Fernet
 from itertools import chain, combinations, product
 
 ACCURACY_THRESHOLD = 2
 HASH_ITERATIONS = 24000
 SVG_WIDTH = 300
 SVG_HEIGHT = 300
-FERNET_KEY = os.environ['FERNET_KEY']
 
 def get_random_seed():
     """
@@ -23,25 +21,25 @@ def make_password(raw_password, labels):
     permutation = range(len(labels))
     random.SystemRandom().shuffle(permutation)
 
-    password = hash_password(raw_password, salt, permutation)
-    return password, permutation
+    # password = hash_password(raw_password, salt, permutation)
+    password = hash_once(raw_password, salt)
+    return password, salt, permutation
 
 def hash_password(raw_password, salt, permutation, iterations=HASH_ITERATIONS):
     """
     Hash data of the form "<raw_password>$<comma sep permutations>"
     """
     permutation = ','.join(map(str, permutation))
-
     password = '%s$%s' % (raw_password, permutation)
     hashed = pbkdf2(password, salt, iterations)
-    hashed = base64.b64encode(hashed).decode('ascii').strip()
-    return '%s$%s' % (salt, hashed)
+    return base64.b64encode(hashed).decode('ascii').strip()
 
-def encode(val):
-    return Fernet(FERNET_KEY).encrypt(bytes(val))
-
-def decode(token):
-    return Fernet(FERNET_KEY).decrypt(bytes(token))
+def hash_once(raw_password, salt):
+    """
+    Hash the given password once, for purposes of storing into database
+    """
+    hashed = pbkdf2(raw_password, salt, 1)
+    return base64.b64encode(hashed).decode('ascii').strip()
 
 def list_permutations(permutation, threshold=ACCURACY_THRESHOLD):
     """

@@ -7,6 +7,7 @@ class UserTestCase(TestCase):
     def _create_user(self, **kwargs):
         defaults = {
             'username': 'test',
+            'email': 'test@example.com',
             'raw_password': 'password',
             'seed': get_random_seed(),
             'num_images': 3,
