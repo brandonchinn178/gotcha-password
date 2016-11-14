@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
 from django.core import validators
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils.crypto import constant_time_compare
 
-import time
+import time, json
 from itertools import permutations
 
 from base.utils import *
@@ -122,6 +123,8 @@ class LoginAttempt(models.Model):
     password = models.CharField(max_length=128) # the password the user used to log in again, encrypted
     permutation = models.CharField(max_length=50)
     timestamp = models.DateTimeField(auto_now_add=True)
+    # holds results of benchmarking for this login attempt
+    benchmarks = models.FileField(upload_to='benchmarks', null=True)
 
     def __unicode__(self):
         if self.right_password:
@@ -133,6 +136,13 @@ class LoginAttempt(models.Model):
 
     def get_permutation(self):
         return map(int, self.permutation.split(','))
+
+    def set_benchmarks(self, benchmarks):
+        benchmarks = json.dumps(benchmarks)
+        filename = '%s_%s.json' % (self.user.username, self.timestamp)
+        self.benchmarks.delete()
+        self.benchmarks.save(filename, ContentFile(benchmarks))
+        self.save()
 
     ## TESTING FUNCTIONS
 

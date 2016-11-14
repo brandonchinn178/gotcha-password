@@ -105,6 +105,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_LOCATION = 'static'
+MEDIAFILES_LOCATION = 'media'
 
 if IS_HEROKU:
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
@@ -115,4 +116,8 @@ if IS_HEROKU:
     AWS_S3_HOST = 's3-us-west-1.amazonaws.com'
 
     STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+    MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
     STATICFILES_STORAGE = 'base.custom_storages.StaticStorage'
+    DEFAULT_FILE_STORAGE = 'base.custom_storages.MediaStorage'
+else:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
