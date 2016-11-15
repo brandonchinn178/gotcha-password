@@ -81,9 +81,9 @@ def generate_images(num_images, seed):
 
     for _ in range(num_images):
         image = []
-        random_ellipses(image, 65, 30, 30)
-        random_ellipses(image, 25, 15, 15)
-        random_ellipses(image, 65, 30, 15)
+        random_ellipses(image, 30, 35, 35)
+        random_ellipses(image, 20, 15, 15)
+        random_ellipses(image, 30, 35, 15)
         images.append(image)
 
     # re-randomize seed
