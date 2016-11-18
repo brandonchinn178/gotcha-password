@@ -6,11 +6,11 @@ from django.core.mail import get_connection, EmailMultiAlternatives
 from django.conf import settings
 from django.utils import timezone
 
-import os, sys, redis
-from rq import Queue
+import os, sys
 from datetime import timedelta
 
 from base.models import *
+from base.redis_utils import REDIS_QUEUE
 
 def email_reminders(log_progress):
     def log(msg='', newline=True):
@@ -44,10 +44,8 @@ def email_reminders(log_progress):
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        redis_url = os.environ.get('REDIS_URL', None)
-        if redis_url:
-            conn = redis.from_url(redis_url)
-            Queue(connection=conn).enqueue(email_reminders, log_progress=False)
+        if REDIS_QUEUE:
+            REDIS_QUEUE.enqueue(email_reminders, log_progress=False)
             print 'Emailing reminders queued.'
         else:
             email_reminders(log_progress=True)

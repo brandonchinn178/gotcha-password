@@ -3,12 +3,12 @@ from django.core.files.storage import default_storage
 from django.db.models import Min, Max, Avg, F
 from django.utils.timezone import localtime
 
-import os, sys, redis
-from rq import Queue
+import os, sys
 from xlwt.Workbook import Workbook
 from datetime import datetime
 
 from base.models import *
+from base.redis_utils import REDIS_QUEUE
 
 class ExcelSheet(object):
     """
@@ -119,10 +119,8 @@ def run_collect_data(log_progress):
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        redis_url = os.environ.get('REDIS_URL', None)
-        if redis_url:
-            conn = redis.from_url(redis_url)
-            Queue(connection=conn).enqueue(run_collect_data, log_progress=False)
+        if REDIS_QUEUE:
+            REDIS_QUEUE.enqueue(run_collect_data, log_progress=False)
             print 'Collecting data queued.'
         else:
             run_collect_data(log_progress=True)
