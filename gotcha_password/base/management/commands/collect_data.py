@@ -57,7 +57,7 @@ def run_collect_data(log_progress):
         median = percentages[middle]
     else:
         median = sum(percentages[middle:middle+1]) / 2
-    
+
     with default_storage.open('summary.txt', 'w+') as f:
         f.writelines('\n'.join([
             'Total accounts: %d' % User.objects.count(),

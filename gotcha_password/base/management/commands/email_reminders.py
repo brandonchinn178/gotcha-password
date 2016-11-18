@@ -48,6 +48,6 @@ class Command(BaseCommand):
         if redis_url:
             conn = redis.from_url(redis_url)
             Queue(connection=conn).enqueue(email_reminders, log_progress=False)
-            print 'Benchmarks queued.'
+            print 'Emailing reminders queued.'
         else:
             email_reminders(log_progress=True)
