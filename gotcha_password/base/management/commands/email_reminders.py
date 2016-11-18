@@ -44,7 +44,7 @@ def email_reminders(log_progress):
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        if REDIS_QUEUE:
+        if REDIS_QUEUE is not None:
             REDIS_QUEUE.enqueue(email_reminders, log_progress=False)
             print 'Emailing reminders queued.'
         else:

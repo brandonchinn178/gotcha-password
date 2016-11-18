@@ -119,7 +119,7 @@ def run_collect_data(log_progress):
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        if REDIS_QUEUE:
+        if REDIS_QUEUE is not None:
             REDIS_QUEUE.enqueue(run_collect_data, log_progress=False)
             print 'Collecting data queued.'
         else:

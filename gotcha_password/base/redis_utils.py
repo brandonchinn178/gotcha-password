@@ -3,7 +3,7 @@ Utility functions for Redis
 """
 
 import redis, os
-from rq import Worker, Queue, Connection
+from rq import Queue
 
 redis_url = os.environ.get('REDIS_URL')
 if redis_url is None:
