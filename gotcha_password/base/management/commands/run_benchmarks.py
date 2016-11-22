@@ -51,7 +51,7 @@ def run_benchmarks(login_attempt, log_progress):
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        login_attempts = LoginAttempt.objects.filter(benchmarks=None)
+        login_attempts = LoginAttempt.objects.filter(benchmarks='')
         if REDIS_QUEUE is not None:
             for login_attempt in login_attempts:
                 REDIS_QUEUE.enqueue(run_benchmarks, login_attempt, log_progress=False)
