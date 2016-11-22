@@ -54,19 +54,19 @@ def run_collect_data(log_progress):
     total = len(percentages)
     middle = total / 2 - 1
     if total % 2 == 0:
-        median = percentages[middle]
+        median = sum(percentages[middle:middle+2]) / 2
     else:
-        median = sum(percentages[middle:middle+1]) / 2
+        median = percentages[middle]
 
     with default_storage.open('summary.txt', 'w+') as f:
-        f.writelines('\n'.join([
+        f.writelines([
             'Total accounts: %d' % User.objects.count(),
             'Total login attempts with invalid passwords: %d' % LoginAttempt.objects.filter(right_password=False).count(),
             'Min percentage: %f' % percentages[0],
             'Max percentage: %f' % percentages[total - 1],
             'Average percentage: %f' % (sum(percentages) / float(total)),
             'Median percentage: %f' % median,
-        ]))
+        ])
 
     # Save a file with all the data as an Excel file
     log('Saving all data...')
