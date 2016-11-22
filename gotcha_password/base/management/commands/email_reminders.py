@@ -19,8 +19,7 @@ def email_reminders(log_progress):
             sys.stdout.write(msg + end)
             sys.stdout.flush()
 
-    two_days_ago = timezone.now() - timedelta(days=2)
-    users = User.objects.filter(logins=None, timestamp__lt=two_days_ago)
+    users = User.objects.filter(logins=None)
 
     emails = []
     for user in users:
