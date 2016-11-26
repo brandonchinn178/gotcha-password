@@ -61,6 +61,7 @@ def run_collect_data(log_progress):
     with default_storage.open('summary.txt', 'w') as f:
         f.write('\n'.join([
             'Total accounts: %d' % User.objects.count(),
+            'Total login attempts: %d' % LoginAttempt.objects.count(),
             'Total login attempts with invalid passwords: %d' % LoginAttempt.objects.filter(right_password=False).count(),
             'Min percentage: %f' % percentages[0],
             'Max percentage: %f' % percentages[total - 1],
