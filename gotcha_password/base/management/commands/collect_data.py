@@ -92,7 +92,6 @@ def run_collect_data(log_progress):
     crack_iterations.write_headers(['Number of Images', 'Hash Iterations', 'Time'])
     for login in LoginAttempt.objects.annotate(percent_correct=percent_correct):
         num_images = login.user.num_images
-        benchmarks = login.get_benchmarks()
 
         logins_sheet.add_row([
             login.timestamp,
@@ -105,6 +104,12 @@ def run_collect_data(log_progress):
         if login.right_password:
             # only run accuracy for logins with the right password
             images_accuracy.add_row([num_images, login.percent_correct])
+
+        try:
+            benchmarks = login.get_benchmarks()
+        except:
+            continue
+
         for threshold, time in enumerate(benchmarks['check']['accuracy']):
             check_threshold.add_row([num_images, threshold, time])
         for i, time in enumerate(benchmarks['check']['iterations']):
