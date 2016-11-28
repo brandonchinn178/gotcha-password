@@ -83,14 +83,10 @@ def run_collect_data(log_progress):
     logins_sheet.write_headers(['Timestamp', 'Username', 'Right password?', '# correct images', '# total images', 'Percent correct'])
     images_accuracy = ExcelSheet(workbook, 'NumImages_Accuracy')
     images_accuracy.write_headers(['Number of Images', 'Percent Correct'])
-    check_threshold = ExcelSheet(workbook, 'Check_Threshold')
-    check_threshold.write_headers(['Number of Images', 'Accuracy Threshold', 'Time'])
-    check_iterations = ExcelSheet(workbook, 'Check_Iterations')
-    check_iterations.write_headers(['Number of Images', 'Hash Iterations', 'Time'])
-    crack_threshold = ExcelSheet(workbook, 'Crack_Threshold')
-    crack_threshold.write_headers(['Number of Images', 'Accuracy Threshold', 'Time'])
-    crack_iterations = ExcelSheet(workbook, 'Crack_Iterations')
-    crack_iterations.write_headers(['Number of Images', 'Hash Iterations', 'Time'])
+    check_sheet = ExcelSheet(workbook, 'Check')
+    check_sheet.write_headers(['Number of Images', 'Accuracy Threshold', 'Time'])
+    crack_sheet = ExcelSheet(workbook, 'Crack')
+    crack_sheet.write_headers(['Number of Images', 'Accuracy Threshold', 'Time'])
     for login in LoginAttempt.objects.annotate(percent_correct=percent_correct):
         num_images = login.user.num_images
 
@@ -111,14 +107,10 @@ def run_collect_data(log_progress):
         except:
             continue
 
-        for threshold, time in enumerate(benchmarks['check']['accuracy']):
-            check_threshold.add_row([num_images, threshold, time])
-        for i, time in enumerate(benchmarks['check']['iterations']):
-            check_iterations.add_row([num_images, (i + 1) * 25, time])
-        for threshold, time in enumerate(benchmarks['crack']['accuracy']):
-            crack_threshold.add_row([num_images, threshold, time])
-        for i, time in enumerate(benchmarks['crack']['iterations']):
-            crack_iterations.add_row([num_images, (i + 1) * 25, time])
+        for threshold, time in enumerate(benchmarks['check']):
+            check_sheet.add_row([num_images, threshold, time])
+        for threshold, time in enumerate(benchmarks['crack']):
+            crack_sheet.add_row([num_images, threshold, time])
 
     with default_storage.open('data.xls', 'w+') as f:
         workbook.save(f)

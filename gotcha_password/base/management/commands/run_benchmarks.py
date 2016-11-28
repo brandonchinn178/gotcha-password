@@ -14,35 +14,21 @@ def run_benchmarks(login_attempt, log_progress):
 
     log('Running benchmarks for %s... ' % login_attempt, newline=False)
 
+    # i-th index of lists represents benchmark with accuracy threshold=i
     benchmarks = {
         # algorithm to check password after logging in
-        'check': {
-            # list, where i-th number represents benchmark with accuracy
-            # threshold=i and iterations=1
-            'accuracy': [-1 for i in range(7)],
-            # list, where ith-number represents benchmark with iterations=(i + 1) * 25
-            # and accuracy threshold=2
-            'iterations': [-1 for i in range(10)],
-        },
+        'check': [],
         # algorithm to brute force permutation
-        'crack': {
-            'accuracy': [-1 for i in range(7)],
-            'iterations': [-1 for i in range(10)],
-        },
+        'crack': [],
     }
-    for i in range(7):
-        log('#', newline=False)
-        benchmarks['check']['accuracy'][i] = login_attempt.check_password_timed(i, 1)
 
     for i in range(7):
         log('#', newline=False)
-        benchmarks['crack']['accuracy'][i] = login_attempt.crack_permutation(i, 1)
+        benchmarks['check'].append(login_attempt.check_password_timed(i, 24000))
 
-    for i in range(10):
+    for i in range(7):
         log('#', newline=False)
-        iterations = (i + 1) * 25
-        benchmarks['check']['iterations'][i] = login_attempt.check_password_timed(2, iterations)
-        benchmarks['crack']['iterations'][i] = login_attempt.crack_permutation(2, iterations)
+        benchmarks['crack'].append(login_attempt.crack_permutation(i, 1))
 
     login_attempt.set_benchmarks(benchmarks)
     log()
