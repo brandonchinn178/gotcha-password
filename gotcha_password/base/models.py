@@ -181,7 +181,7 @@ class LoginAttempt(models.Model):
             did_crack = False
 
             for p in list_permutations(permutation, threshold=threshold):
-                hashed = hash_password(self.password, salt, p, iterations=iterations)
+                hashed = hash_password(user_password, salt, p, iterations=iterations)
                 if constant_time_compare(hashed, user_password):
                     did_crack = True
                     break
