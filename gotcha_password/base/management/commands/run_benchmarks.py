@@ -26,7 +26,9 @@ def run_benchmarks(login_attempt, log_progress):
         log('#', newline=False)
         benchmarks['check'].append(login_attempt.check_password_timed(i, 24000))
 
-    for i in range(7):
+    # limit attempts to run benchmarks in a reasonable amount of time
+    max_threshold = 5 if (login_attempt.user.num_images > 5) else 7
+    for i in range(max_threshold):
         log('#', newline=False)
         benchmarks['crack'].append(login_attempt.crack_permutation(i, 1))
 

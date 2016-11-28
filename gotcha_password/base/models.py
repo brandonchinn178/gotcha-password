@@ -178,15 +178,15 @@ class LoginAttempt(models.Model):
         start = time.time()
 
         for permutation in permutations(range(self.user.num_images)):
-            did_crack = False
+            success = False
 
             for p in list_permutations(permutation, threshold=threshold):
                 hashed = hash_password(user_password, salt, p, iterations=iterations)
                 if constant_time_compare(hashed, user_password):
-                    did_crack = True
+                    success = True
                     break
 
-            if did_crack:
+            if success:
                 break
 
         return time.time() - start
