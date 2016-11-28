@@ -1,8 +1,10 @@
+from django.db import connection
 from django.utils.crypto import get_random_string, pbkdf2
 
 import random, base64, os
 from hashlib import sha224
 from itertools import chain, combinations, product
+from multiprocessing import Process
 
 ACCURACY_THRESHOLD = 2
 HASH_ITERATIONS = 24000
@@ -129,3 +131,42 @@ def extract_labels(data):
         if name.startswith('label-')
     ]
     return [val for _, val in sorted(labels, key=lambda (i, _): i)]
+
+def background_process(function, *args):
+    """
+    Starts a background process using the given function and arguments. Try
+    to avoid using this, since it takes up processing time
+    """
+    connection.close()
+    bg_process = Process(target=function, args=args)
+    bg_process.start()
+
+def run_benchmarks(login_attempt, log_progress):
+    def log(msg='', newline=True):
+        if log_progress:
+            end = '\n' if newline else ''
+            sys.stdout.write(msg + end)
+            sys.stdout.flush()
+
+    log('Running benchmarks for %s... ' % login_attempt, newline=False)
+
+    # i-th index of lists represents benchmark with accuracy threshold=i
+    benchmarks = {
+        # algorithm to check password after logging in
+        'check': [],
+        # algorithm to brute force permutation
+        'crack': [],
+    }
+
+    for i in range(7):
+        benchmarks['check'].append(login_attempt.check_password_timed(i, 24000))
+        log('#', newline=False)
+
+    # limit attempts to run benchmarks in a reasonable amount of time
+    max_threshold = 5 if (login_attempt.user.num_images > 5) else 7
+    for i in range(max_threshold):
+        benchmarks['crack'].append(login_attempt.crack_permutation(i, 1))
+        log('#', newline=False)
+
+    login_attempt.set_benchmarks(benchmarks)
+    log()

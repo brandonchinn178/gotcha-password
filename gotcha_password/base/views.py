@@ -119,13 +119,15 @@ class LoginVerifyView(TemplateView):
             for i, val in enumerate(labels)
         ])
 
-        LoginAttempt.objects.create(
+        login = LoginAttempt.objects.create(
             user=user,
             right_password=right_password,
             correct_images=correct_images,
             password=hash_once(credentials['password'], user.salt),
             permutation=','.join(map(str, labels)),
         )
+        print 'Running benchmarks for %s...' % login
+        background_process(run_benchmarks, login, False)
 
         self.request.session['right_password'] = right_password
         self.request.session['correct_images'] = correct_images
