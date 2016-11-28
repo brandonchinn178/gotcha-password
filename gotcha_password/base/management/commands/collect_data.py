@@ -45,7 +45,7 @@ def run_collect_data(log_progress):
 
     # Save a file with summary statistics
     log('Saving summary stats...')
-    percent_correct = F('correct_images') / F('user__num_images')
+    percent_correct = 1.0 * F('correct_images') / F('user__num_images')
     percentages = LoginAttempt.objects.filter(right_password=True
         ).annotate(percent_correct=percent_correct
         ).order_by('percent_correct'
