@@ -86,7 +86,7 @@ def run_collect_data(log_progress):
     check_sheet = ExcelSheet(workbook, 'Check')
     check_sheet.write_headers(['Number of Images', 'Accuracy Threshold', 'Time', 'Right password'])
     crack_sheet = ExcelSheet(workbook, 'Crack')
-    crack_sheet.write_headers(['Number of Images', 'Accuracy Threshold', 'Time', 'Right password'])
+    crack_sheet.write_headers(['Number of Images', 'Accuracy Threshold', 'Time'])
     for login in LoginAttempt.objects.annotate(percent_correct=percent_correct):
         num_images = login.user.num_images
 
@@ -110,7 +110,7 @@ def run_collect_data(log_progress):
         for threshold, time in enumerate(benchmarks['check']):
             check_sheet.add_row([num_images, threshold, time, login.right_password])
         for threshold, time in enumerate(benchmarks['crack']):
-            crack_sheet.add_row([num_images, threshold, time, login.right_password])
+            crack_sheet.add_row([num_images, threshold, time])
 
     with default_storage.open('data.xls', 'w+') as f:
         workbook.save(f)
