@@ -1,7 +1,7 @@
 from django.db import connection
 from django.utils.crypto import get_random_string, pbkdf2
 
-import random, base64, os
+import random, base64, os, sys
 from hashlib import sha224
 from itertools import chain, combinations, product
 from multiprocessing import Process

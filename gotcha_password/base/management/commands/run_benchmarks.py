@@ -1,7 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
 
-import os, sys
-
 from base.models import *
 from base.redis_utils import REDIS_QUEUE
 from base.utils import run_benchmarks
